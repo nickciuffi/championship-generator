@@ -5,12 +5,12 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { PrimaryBtn } from "../../components/primaryBtn";
 import {useNavigate} from 'react-router-dom'
-import { ParticipantsContext } from "../../app";
+import { useParticipants } from "../../CustomHooks/useParticipants";
 
 
 export function Home(){
     const [participants, setParticipants] = useState<ParticipantProps[]>([])
-    const contextParticipants = useContext(ParticipantsContext);
+    const contextParticipants = useParticipants();
     const navigate = useNavigate();
 
     function handleAdd(formEvent: FormEvent<HTMLFormElement>){
@@ -56,11 +56,11 @@ export function Home(){
             <div className="min-h-[200px] h-[100%] bg-slate-700 w-[2px]"><></></div>
             <div className="bg-slate-600 min-h-[188px] min-w-[30%] rounded-xl p-8 text-white">
                 <p>Participants:</p>
-                <ul className="mt-5">
+                <ul className="mt-5 mb-4">
                 {
                 participants.length == 0 ? <p>No participants yet</p> :
                 participants.map((part, i) => <Participant key={i} i={i} id={part.id} name={part.name} handleDelete={handleDelete} />)}
-            </ul>
+                </ul>
             {   
             participants.length > 1 ?
             <PrimaryBtn onClick={handleStart}>Start</PrimaryBtn>

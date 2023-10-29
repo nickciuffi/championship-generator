@@ -1,13 +1,17 @@
-import { ParticipantsContext } from "../../app";
-import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useParticipants } from "../../CustomHooks/useParticipants";
+import {useEffect} from 'react'
 
 export function GameShower(){
-
-    const {participants} = useContext(ParticipantsContext);
+    const navigate = useNavigate();
+    const {participants} = useParticipants();
+    useEffect(() => {
+        if(participants.length < 2) return navigate('/');
+    }, [participants])
    
     return (
         <div className="container">
-            {participants.map((part) => <p>{part.name}</p>)}
+            {participants.map((part, id) => <p key={id}>{part.name}</p>)}
         </div>
     )
 }

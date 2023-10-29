@@ -13,7 +13,7 @@ export const ParticipantsContext = createContext<contextProps>({
 
 export function App() {
     
-    const [participants, setParticipants] = useState([{id:1, name: 'nick'}])
+    const [participants, setParticipants] = useState([{id:1, name: 'No Participants yet'}])
     const value = {participants, setParticipants};
     return (
         <ParticipantsContext.Provider value={value}>
