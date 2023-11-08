@@ -27,6 +27,8 @@ export function Home(){
 
         setParticipants(prev => [...prev, {
             id: prev.length, name}])
+        
+        inputName.value = ""
       
         
     }
@@ -44,17 +46,17 @@ export function Home(){
     }
 
     return (
-        <div className="container mx-auto px-[10%] py-6">
+        <div className="container mx-auto py-6">
             <p className="text-2xl text-center mb-4">Create your own championship</p>
             <p className="text-xl text-center">The first step is to choose the players</p>
-            <div className="flex justify-around items-start py-10 text-lg">
-            <form onSubmit={(e) => handleAdd(e)} className="w-[30%] min-h-[188px] p-8 rounded-md bg-slate-600 flex flex-col justify-center items-start gap-1" >
+            <div className="flex justify-around flex-col items-center md:flex-row md:items-start max-w-[1100px] mx-[auto] py-10 text-lg">
+            <form onSubmit={(e) => handleAdd(e)} className="w-[70%] md:w-[40%] mb-20 min-h-[188px] p-8 rounded-md bg-slate-600 flex flex-col justify-center items-start gap-1" >
                 <label htmlFor="name" className="text-white">Name</label>
-                <input type="text" id="name" placeholder="name" maxLength={20} required className="mb-4 px-2 rounded-md" />
+                <input type="text" id="name" placeholder="name" maxLength={20} required className="w-[100%] mb-4 px-2 rounded-md" />
                 <button className="bg-emerald-600 rounded-md px-4 py-2 text-white">Adicionar</button>
             </form>
-            <div className="min-h-[200px] h-[100%] bg-slate-700 w-[2px]"><></></div>
-            <div className="bg-slate-600 min-h-[188px] min-w-[30%] rounded-xl p-8 text-white">
+            <div className="min-h-[200px] md:block hidden h-[100%] bg-slate-700 w-[2px]"><></></div>
+            <div className="bg-slate-600 min-h-[188px] w-[70%] md:w-[40%] rounded-xl p-8 text-white">
                 <p>Participants:</p>
                 <ul className="mt-5 mb-4">
                 {
@@ -62,7 +64,7 @@ export function Home(){
                 participants.map((part, i) => <Participant key={i} i={i} id={part.id} name={part.name} handleDelete={handleDelete} />)}
                 </ul>
             {   
-            participants.length > 1 ?
+            participants.length > 2 ?
             <PrimaryBtn onClick={handleStart}>Start</PrimaryBtn>
             : <></>
             }

@@ -1,4 +1,4 @@
 export type ParticipantProps = {
-    id: number,
+    id?: number,
     name: string,
 }

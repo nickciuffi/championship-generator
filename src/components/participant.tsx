@@ -3,7 +3,7 @@ import { AiFillDelete } from 'react-icons/ai'
 
 export type ParticipantComponentProps = {
     i: number,
-    id: number,
+    id?: number,
     name: string,
     handleDelete: (arg0: number) => void,
 }
