@@ -4,6 +4,8 @@ import {useEffect, useState} from 'react'
 import { ParticipantProps } from "../../props/participants";
 import { Key } from "../../components/key";
 import { Game } from "../../components/game";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 type keysProps = {
     side1: key[],
@@ -31,6 +33,7 @@ export function GameShower(){
 
    const [jogoAtual, setJogoAtual] = useState<JogoAtualProps>({side: 1, id: 0, key: 0});
    const [numJogo, setNumJogo] = useState<number>(1);
+   const [finalValendo, setFinalValendo] = useState(false);
 
    const navigate = useNavigate();
    const {participants} = useParticipants();
@@ -135,16 +138,61 @@ export function GameShower(){
         
     }, [])
 
-    function handleSetWinner(winNum: number){
-        const editKeys = {...keys}
-        if(jogoAtual.side === 1){
-            editKeys.side1[jogoAtual.key].games[jogoAtual.id].winner = editKeys.side1[jogoAtual.key].games[jogoAtual.id].participants[winNum];
-
+    function proximoJogo():JogoAtualProps | undefined{
+        
+        const jogo = {...jogoAtual}
+        if(!keys[`side${jogo.side}` as 'side1' | 'side2'][jogoAtual.key].games[jogo.id + 1]){
+            
+            //next key side
+            if(jogo.side === 1) {
+                jogo.side = 2
+            }else{
+                if(!keys[`side${jogo.side}` as 'side1' | 'side2'][jogoAtual.key+1]){
+                    //começa final
+                    
+                    return 
+                }
+                
+                jogo.side = 1
+                jogo.key = jogo.key + 1
+            }
+            jogo.id = 0;
         }
         else{
-            editKeys.side2[jogoAtual.key].games[jogoAtual.id].winner = editKeys.side1[jogoAtual.key].games[jogoAtual.id].participants[winNum];
+            jogo.id++
         }
-        console.log(editKeys)
+        return jogo
+
+    }
+
+
+    function handleSetWinner(winNum: 0 | 1){
+        const MySwal = withReactContent(Swal)
+        if(finalValendo){
+            MySwal.fire({
+                title: `${ final.participants[winNum].name} is the winner`,
+                icon: 'success'
+              })
+            return setFinal({participants: final.participants, winner: final.participants[winNum]})
+        } 
+
+        const editKeys = {...keys}
+        const key =  editKeys[`side${jogoAtual.side}` as 'side1' | 'side2'][jogoAtual.key]
+        key.games[jogoAtual.id].winner = key.games[jogoAtual.id].participants[winNum];
+        if(key.games.length === 1) {
+             setFinal({participants: [
+                key.games[jogoAtual.id].participants[winNum],
+                final.participants[0]
+                
+            ]})
+            const jogo = proximoJogo()
+            if(!jogo) setFinalValendo(true);
+        }
+        console.log(keys)
+        const jogo = proximoJogo() as JogoAtualProps;
+
+
+        setJogoAtual(jogo);
     }
     
     return (
@@ -160,9 +208,27 @@ export function GameShower(){
             </div>
             </div>
             <div className="">
-                <p className="text-center text-2xl ">Quem venceu o jogo {numJogo}?</p>
+                {
+                    final.winner ? 
+                    <>
+                        <button> Reiniciar</button>
+                        <button> Criar outro campeonato</button>
+                        </>
+                        : 
+                      
+                        <div>
+                         <p className="text-center text-2xl ">{
+                    finalValendo ? 
+                    'Quem venceu a final?'
+                    :
+                `Quem venceu o jogo ${numJogo}?`}</p>
                 <div className="flex justify-around items-center mt-10">
                 <a className="bg-green-700 text-white py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(0)}>{
+                    
+                    
+                    (finalValendo) ?  
+                    final.participants[0].name
+                    :
                     keys.side1.length === 0 ? <> Loading</> :
                 jogoAtual.side == 1 ? 
                 keys.side1[jogoAtual.key].games[jogoAtual.id].participants[0].name
@@ -171,6 +237,9 @@ export function GameShower(){
             OU
             <a className="bg-green-700 text-white py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(1)}>
                 {
+                       (finalValendo) ?  
+                       final.participants[1].name
+                       :
                     keys.side2.length === 0 ? <> Loading</> :
             jogoAtual.side == 1 ? 
                 keys.side1[jogoAtual.key].games[jogoAtual.id].participants[1].name
@@ -178,6 +247,8 @@ export function GameShower(){
                 }
             </a>
             </div>
+                </div>
+                    }
             </div>
         </div>
     )

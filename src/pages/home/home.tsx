@@ -64,7 +64,7 @@ export function Home(){
                 participants.map((part, i) => <Participant key={i} i={i} id={part.id} name={part.name} handleDelete={handleDelete} />)}
                 </ul>
             {   
-            participants.length > 2 ?
+            participants.length > 3 ?
             <PrimaryBtn onClick={handleStart}>Start</PrimaryBtn>
             : <></>
             }
