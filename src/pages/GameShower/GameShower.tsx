@@ -19,7 +19,7 @@ export type game = {
 type key = {
     games: game[]
 }
-type JogoAtualProps = {
+type JogoEspecificoProps = {
     side: 1 | 2,
     key: number,
     id: number,
@@ -31,7 +31,7 @@ export function GameShower(){
 
    const [final, setFinal] = useState<game>( {participants: [{name: "???"}, {name: "???"}]});
 
-   const [jogoAtual, setJogoAtual] = useState<JogoAtualProps>({side: 1, id: 0, key: 0});
+   const [jogoAtual, setJogoAtual] = useState<JogoEspecificoProps>({side: 1, id: 0, key: 0});
    const [numJogo, setNumJogo] = useState<number>(1);
    const [finalValendo, setFinalValendo] = useState(false);
 
@@ -42,6 +42,22 @@ export function GameShower(){
         side1: [],
         side2: []
     })
+
+    useEffect(() => {
+        
+        if(participants.length < 2) {
+            const pastChampionships = localStorage.getItem('participants');
+            
+            if(!pastChampionships) return navigate('/');
+            const loadedPastChampionships = JSON.parse(pastChampionships) as ParticipantProps[]
+            generateKeys(loadedPastChampionships);
+        }
+        else{
+        localStorage.setItem('participants', JSON.stringify(participants));
+        generateKeys(participants);
+        }
+        
+    }, [])
 
     function verifyInitialWinners(dado: key){
 
@@ -72,7 +88,7 @@ export function GameShower(){
             if(nextKeys[nextKeys.length - 1].games[(id*2)+1]) {
            
             if(nextKeys[nextKeys.length - 1].games[(id*2)+1].winner){
-                return {participants: [{name: "???"}, nextKeys[nextKeys.length - 1].games[id*2+1].winner as ParticipantProps]};
+                return {participants: [ nextKeys[nextKeys.length - 1].games[id*2+1].winner as ParticipantProps, {name: "???"},]};
             }
         }
         return game
@@ -122,47 +138,79 @@ export function GameShower(){
     }
 
   
-    useEffect(() => {
-        
-        if(participants.length < 2) {
-            const pastChampionships = localStorage.getItem('participants');
-            
-            if(!pastChampionships) return navigate('/');
-            const loadedPastChampionships = JSON.parse(pastChampionships) as ParticipantProps[]
-            generateKeys(loadedPastChampionships);
-        }
-        else{
-        localStorage.setItem('participants', JSON.stringify(participants));
-        generateKeys(participants);
-        }
-        
-    }, [])
+    
 
-    function proximoJogo():JogoAtualProps | undefined{
+    function getAtualGame(jogo: JogoEspecificoProps){
+        return keys[`side${jogo.side}` as 'side1' | 'side2'][jogo.key].games[jogo.id];
+    }
+
+    function getChildGame(jogo:JogoEspecificoProps): JogoEspecificoProps{
+        const child:JogoEspecificoProps = {
+            side: jogo.side,
+            key: jogo.key + 1,
+            id: Math.floor(jogo.id/2),
+        }
+        return child
+    }
+
+    function setProximoJogo(jogo: JogoEspecificoProps):JogoEspecificoProps | undefined{
         
-        const jogo = {...jogoAtual}
+       
         if(!keys[`side${jogo.side}` as 'side1' | 'side2'][jogoAtual.key].games[jogo.id + 1]){
             
             //next key side
             if(jogo.side === 1) {
                 jogo.side = 2
             }else{
-                if(!keys[`side${jogo.side}` as 'side1' | 'side2'][jogoAtual.key+1]){
+                if(!keys[`side1`][jogoAtual.key+1]){
                     //começa final
-                    
-                    return 
+                    if(!keys[`side2`][jogoAtual.key+1]) return 
+                    //Fica na direita 
+                    jogo.key = jogo.key + 1;
+                  
+                   
                 }
+                else{
                 
                 jogo.side = 1
                 jogo.key = jogo.key + 1
+                }
             }
             jogo.id = 0;
         }
         else{
             jogo.id++
         }
+        
+        if(getAtualGame(jogo).winner){
+            return setProximoJogo(jogo); 
+        }
+       /* 
+       Ainda bugado
+       if(!getAtualGame(jogo).participants[0].id || !getAtualGame(jogo).participants[1].id){
+            setWinnerToGame(jogo, getAtualGame(jogo).participants[[0]])
+            setWinnerToGame(getChildGame(jogo), getAtualGame(jogo).participants[0])
+            
+            return setProximoJogo(jogo)
+        } */
         return jogo
 
+    }
+
+    function setWinnerToGame(editGame: JogoEspecificoProps, winner: ParticipantProps){
+        const editKeys = {...keys}
+        const editGameKey = [...editKeys[`side${editGame.side}` as 'side1' | 'side2'][editGame.key].games];
+        const finalEditGames = editGameKey.map((game, id):game => {
+            if(id !== editGame.id)return game;
+            return {
+                participants: [
+                    winner,
+                    game.participants[0]
+                ]
+            }
+        })
+
+        editKeys[`side${editGame.side}` as 'side1' | 'side2'][editGame.key].games = finalEditGames
     }
 
 
@@ -175,39 +223,48 @@ export function GameShower(){
               })
             return setFinal({participants: final.participants, winner: final.participants[winNum]})
         } 
-
+        setNumJogo(numJogo + 1)
         const editKeys = {...keys}
         const key =  editKeys[`side${jogoAtual.side}` as 'side1' | 'side2'][jogoAtual.key]
-        key.games[jogoAtual.id].winner = key.games[jogoAtual.id].participants[winNum];
+        const newWinner = key.games[jogoAtual.id].participants[winNum]
+        key.games[jogoAtual.id].winner = newWinner;
+        // quando foi a ultima key manda para a final
         if(key.games.length === 1) {
              setFinal({participants: [
-                key.games[jogoAtual.id].participants[winNum],
+                newWinner,
                 final.participants[0]
                 
             ]})
-            const jogo = proximoJogo()
-            if(!jogo) setFinalValendo(true);
+            
+            const jogo = setProximoJogo({...jogoAtual})
+            if(!jogo) return setFinalValendo(true);
+            return setJogoAtual(jogo)
         }
-        console.log(keys)
-        const jogo = proximoJogo() as JogoAtualProps;
+        else{
+            const child = getChildGame({...jogoAtual});
+            setWinnerToGame(child, newWinner)
 
+            const jogo = setProximoJogo({...jogoAtual}) as JogoEspecificoProps;
 
-        setJogoAtual(jogo);
+           console.log(keys)
+            setJogoAtual(jogo);
+        }
+       
     }
     
     return (
         <div className="container mx-[auto]">
-            <div className="flex  py-[60px] justify-center h-[100%] items-center">
-            <div className="flex gap-6 mr-6">
+            <div className="flex py-[60px] justify-center h-[100%] items-center">
+            <div className="flex mr-6">
                 { keys.side1.map((k, i) => <Key key={i} games={k.games} />)}
             </div>
             <div className="flex flex-col items-center relative"><p className="absolute top-[-30px]">Final</p><Game participant1={final.participants[0]} participant2={final.participants[1]}/></div>
-            <div className="flex gap-6 flex-row-reverse ml-6">
+            <div className="flex flex-row-reverse ml-6">
                 {keys.side2.map((k, i) => <Key key={i} games={k.games} />)}
             
             </div>
             </div>
-            <div className="">
+            <div className=" mb-40">
                 {
                     final.winner ? 
                     <>
@@ -223,7 +280,7 @@ export function GameShower(){
                     :
                 `Quem venceu o jogo ${numJogo}?`}</p>
                 <div className="flex justify-around items-center mt-10">
-                <a className="bg-green-700 text-white py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(0)}>{
+                <a className="bg-green-700 text-white cursor-pointer py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(0)}>{
                     
                     
                     (finalValendo) ?  
@@ -235,7 +292,7 @@ export function GameShower(){
                     : keys.side2[jogoAtual.key].games[jogoAtual.id].participants[0].name
             }</a>
             OU
-            <a className="bg-green-700 text-white py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(1)}>
+            <a className="bg-green-700 cursor-pointer text-white py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(1)}>
                 {
                        (finalValendo) ?  
                        final.participants[1].name
