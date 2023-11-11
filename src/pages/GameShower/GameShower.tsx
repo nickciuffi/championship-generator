@@ -37,6 +37,9 @@ export function GameShower(){
 
    const navigate = useNavigate();
    const {participants} = useParticipants();
+   const gameSize = 104;
+   const gameMargin = 20;
+
 
     const [keys, setKeys] = useState<keysProps>({
         side1: [],
@@ -56,8 +59,54 @@ export function GameShower(){
         localStorage.setItem('participants', JSON.stringify(participants));
         generateKeys(participants);
         }
-        
+
     }, [])
+    useEffect(() => {
+        if(keys.side1.length === 0) return 
+        const keyEl1 = document.getElementById(`1-0`) as HTMLElement;
+        const keyEl2 = document.getElementById(`2-0`) as HTMLElement;
+        const heightNum = ((keys.side2[0].games.length * gameSize) + ((keys.side2[0].games.length - 1) * gameMargin));
+        keyEl1.style.height = `${heightNum}px`
+        keyEl2.style.height = `${heightNum}px`
+        arrangeGamePositions(1, [...keys.side1]);
+        arrangeGamePositions(2, [...keys.side2]);
+    }, [keys])
+
+    function arrangeGamePositions(side: number, arrangeKeys: key[]){
+       
+        arrangeKeys.forEach((key, keyId) => {
+            
+            key.games.forEach((game, gameId) => {
+                if(keyId === 0){
+                    const gameEl = document.getElementById(`${side}-${keyId}-${gameId}`) as HTMLElement;
+                    let possibleTop = 0 
+                    if(side === 1 && key.games.length < keys.side2[0].games.length){
+                     possibleTop = (gameSize/2) + (gameMargin/2);
+                    }
+                    const topNum = (gameId * (gameSize + gameMargin)) + possibleTop;
+                    gameEl.style.top = `${topNum}px`; 
+                }
+                //se não for a primeira key
+                else{
+                    const parentsKey = keyId - 1;
+                    const parent1GameId = gameId * 2;
+                    const parent2GameId = parent1GameId+1;
+                    const gameEl = document.getElementById(`${side}-${keyId}-${gameId}`) as HTMLElement;
+                    const parent1El = document.getElementById(`${side}-${parentsKey}-${parent1GameId}`) as HTMLElement;
+                    const parent2El = document.getElementById(`${side}-${parentsKey}-${parent2GameId}`);
+                    if(!parent2El){
+                         gameEl.style.top = parent1El.style.top;
+                         return;
+                    }
+                    console.log(parent1El.style.top);
+                    const topNum = (parseInt(parent1El.style.top) + parseInt(parent2El.style.top))/2;
+                    gameEl.style.top = `${topNum}px`
+
+                }
+               
+            })
+        })
+    }
 
     function verifyInitialWinners(dado: key){
 
@@ -185,14 +234,13 @@ export function GameShower(){
         if(getAtualGame(jogo).winner){
             return setProximoJogo(jogo); 
         }
-       /* 
-       Ainda bugado
-       if(!getAtualGame(jogo).participants[0].id || !getAtualGame(jogo).participants[1].id){
-            setWinnerToGame(jogo, getAtualGame(jogo).participants[[0]])
-            setWinnerToGame(getChildGame(jogo), getAtualGame(jogo).participants[0])
+      
+       if(getAtualGame(jogo).participants[1].id === undefined){
             
+            setWinnerToGame(jogo, getAtualGame(jogo).participants[0])
+            setWinnerToGame(getChildGame(jogo), getAtualGame(jogo).participants[0])    
             return setProximoJogo(jogo)
-        } */
+        } 
         return jogo
 
     }
@@ -246,7 +294,6 @@ export function GameShower(){
 
             const jogo = setProximoJogo({...jogoAtual}) as JogoEspecificoProps;
 
-           console.log(keys)
             setJogoAtual(jogo);
         }
        
@@ -254,13 +301,13 @@ export function GameShower(){
     
     return (
         <div className="container mx-[auto]">
-            <div className="flex py-[60px] justify-center h-[100%] items-center">
+            <div className={`flex py-[60px] justify-center h-[100%] items-center`}>
             <div className="flex mr-6">
-                { keys.side1.map((k, i) => <Key key={i} games={k.games} />)}
+                { keys.side1.map((k, i) => <Key id={`1-${i}`} key={i} games={k.games} />)}
             </div>
-            <div className="flex flex-col items-center relative"><p className="absolute top-[-30px]">Final</p><Game participant1={final.participants[0]} participant2={final.participants[1]}/></div>
+            <div className="flex flex-col items-center relative"><p className="absolute top-[-30px]">Final</p><Game isFinal={true} participant1={final.participants[0]} participant2={final.participants[1]}/></div>
             <div className="flex flex-row-reverse ml-6">
-                {keys.side2.map((k, i) => <Key key={i} games={k.games} />)}
+                {keys.side2.map((k, i) => <Key id={`2-${i}`} key={i} games={k.games} />)}
             
             </div>
             </div>
