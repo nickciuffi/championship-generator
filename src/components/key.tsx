@@ -8,7 +8,7 @@ type keyProps = {
 
 export function Key(props: keyProps){
     return (
-        <div id={props.id} className="flex flex-col justify-around items-center gap-10 my-20 w-44 relative">
+        <div id={props.id} className="flex flex-col justify-around items-center gap-10 my-20 tablet:w-44 w-28 relative">
             {props.games.map((g, i) => <Game id={`${props.id}-${i}`} key={i} isFinal={false} participant1={g.participants[0]} participant2={g.participants[1]} />)}
         </div>
     )

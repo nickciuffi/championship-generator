@@ -10,7 +10,7 @@ type GameProps = {
 
 export function Game(props: GameProps){
     return (
-        <div id={props.id} className={clsx("bg-slate-600 text-white p-4 rounded-md min-w-[80px] w-[75%] max-w-[75%] text-center", 
+        <div id={props.id} className={clsx("bg-slate-600 tablet:text-base text-sm text-white tablet:p-4 p-2 rounded-md min-w-[80px] tablet:w-[75%] tablet:max-w-[75%] w-[80 %] max-w-[80%] text-center", 
         { 
         "relative" : props.isFinal,
         "absolute" : !props.isFinal,

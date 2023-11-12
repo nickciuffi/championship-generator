@@ -76,7 +76,8 @@ export function GameShower(){
        
         arrangeKeys.forEach((key, keyId) => {
             
-            key.games.forEach((game, gameId) => {
+            key.games.forEach((_game, gameId) => {
+                
                 if(keyId === 0){
                     const gameEl = document.getElementById(`${side}-${keyId}-${gameId}`) as HTMLElement;
                     let possibleTop = 0 
@@ -301,11 +302,11 @@ export function GameShower(){
     
     return (
         <div className="container mx-[auto]">
-            <div className={`flex py-[60px] justify-center h-[100%] items-center`}>
-            <div className="flex mr-6">
+            <div className={`flex py-[60px] overflow-x-scroll justify-left tablet:justify-center h-[100%] items-center`}>
+            <div className="flex mr-4 tablet:mr-6 ">
                 { keys.side1.map((k, i) => <Key id={`1-${i}`} key={i} games={k.games} />)}
             </div>
-            <div className="flex flex-col items-center relative"><p className="absolute top-[-30px]">Final</p><Game isFinal={true} participant1={final.participants[0]} participant2={final.participants[1]}/></div>
+            <div className="flex flex-col items-center relative"><p className="absolute top-[-30px]">Final</p><Game id="3-0-0" isFinal={true} participant1={final.participants[0]} participant2={final.participants[1]}/></div>
             <div className="flex flex-row-reverse ml-6">
                 {keys.side2.map((k, i) => <Key id={`2-${i}`} key={i} games={k.games} />)}
             

@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Participant } from "../../components/participant"
 import { ParticipantProps } from "../../props/participants"
 import Swal from 'sweetalert2'
@@ -61,7 +61,7 @@ export function Home(){
                 <ul className="mt-5 mb-4">
                 {
                 participants.length == 0 ? <p>No participants yet</p> :
-                participants.map((part, i) => <Participant key={i} i={i} id={part.id} name={part.name} handleDelete={handleDelete} />)}
+                participants.map((part, i) => <Participant key={i} i={i} id={part.id as number} name={part.name} handleDelete={handleDelete} />)}
                 </ul>
             {   
             participants.length > 3 ?
