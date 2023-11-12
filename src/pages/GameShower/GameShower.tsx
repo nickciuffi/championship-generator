@@ -302,7 +302,7 @@ export function GameShower(){
     
     return (
         <div className="container mx-[auto]">
-            <div className={`flex py-[60px] overflow-x-scroll justify-left md:justify-center h-[100%] items-center`}>
+            <div className={`flex py-[60px] overflow-x-scroll md:overflow-hidden justify-left md:justify-center h-[100%] items-center`}>
             <div className="flex mr-4 tablet:mr-6 ">
                 { keys.side1.map((k, i) => <Key id={`1-${i}`} key={i} games={k.games} />)}
             </div>
