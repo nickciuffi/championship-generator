@@ -316,7 +316,7 @@ export function GameShower(){
             <div className="flex">
                 { keys.side1.map((k, i) => <Key direction="right" id={`1-${i}`} key={i} games={k.games} />)}
             </div>
-            <div id="3-0" className="flex flex-col justify-around items-center gap-10 my-20 2xl:w-40 md:w-36 w-28  relative"><p className="absolute top-[-30px]">Final</p><Game id="3-0-0" participant1={final.participants[0]} participant2={final.participants[1]}/></div>
+            <div id="3-0" className="flex flex-col justify-around items-center gap-10 my-20 2xl:w-40 md:w-36 w-28  relative"><p className="absolute top-[-30px]">Final</p><Game hasArrows={false} hasBottom={false} id="3-0-0" participant1={final.participants[0]} participant2={final.participants[1]}/></div>
             <div className="flex flex-row-reverse">
                 {keys.side2.map((k, i) => <Key direction="left" id={`2-${i}`} key={i} games={k.games} />)}
             

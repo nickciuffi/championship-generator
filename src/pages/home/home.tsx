@@ -3,7 +3,7 @@ import { Participant } from "../../components/participant"
 import { ParticipantProps } from "../../props/participants"
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { BlackBtn, PrimaryBtn } from "../../components/blackBtn";
+import { BlackBtn } from "../../components/blackBtn";
 import {useNavigate} from 'react-router-dom'
 import { useParticipants } from "../../CustomHooks/useParticipants";
 
