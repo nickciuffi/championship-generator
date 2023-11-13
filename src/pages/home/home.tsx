@@ -3,7 +3,7 @@ import { Participant } from "../../components/participant"
 import { ParticipantProps } from "../../props/participants"
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { PrimaryBtn } from "../../components/primaryBtn";
+import { BlackBtn, PrimaryBtn } from "../../components/blackBtn";
 import {useNavigate} from 'react-router-dom'
 import { useParticipants } from "../../CustomHooks/useParticipants";
 
@@ -52,8 +52,8 @@ export function Home(){
             <div className="flex justify-around flex-col items-center md:flex-row md:items-start max-w-[1100px] mx-[auto] py-10 text-lg">
             <form onSubmit={(e) => handleAdd(e)} className="w-[70%] md:w-[40%] mb-20 min-h-[188px] p-8 rounded-md bg-slate-600 flex flex-col justify-center items-start gap-1" >
                 <label htmlFor="name" className="text-white">Name</label>
-                <input type="text" id="name" placeholder="name" maxLength={16} required className="w-[100%] mb-4 px-2 rounded-md" />
-                <button className="bg-emerald-600 rounded-md px-4 py-2 text-white">Adicionar</button>
+                <input type="text" id="name" placeholder="name" maxLength={14} required className="w-[100%] mb-4 px-2 rounded-md" />
+                <BlackBtn>Adicionar</BlackBtn>
             </form>
             <div className="min-h-[200px] md:block hidden h-[100%] bg-slate-700 w-[2px]"><></></div>
             <div className="bg-slate-600 min-h-[188px] w-[70%] md:w-[40%] rounded-xl p-8 text-white">
@@ -65,7 +65,7 @@ export function Home(){
                 </ul>
             {   
             participants.length > 3 ?
-            <PrimaryBtn onClick={handleStart}>Start</PrimaryBtn>
+            <BlackBtn onClick={handleStart}>Start</BlackBtn>
             : <></>
             }
             </div>

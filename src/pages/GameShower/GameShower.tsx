@@ -6,8 +6,10 @@ import { Key } from "../../components/key";
 import { Game } from "../../components/game";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { EndGame } from "../../components/endGame";
+import { GameUi } from "../../components/GameUi";
 
-type keysProps = {
+export type keysProps = {
     side1: key[],
     side2: key[],
 }
@@ -19,7 +21,7 @@ export type game = {
 type key = {
     games: game[]
 }
-type JogoEspecificoProps = {
+export type JogoEspecificoProps = {
     side: 1 | 2,
     key: number,
     id: number,
@@ -65,9 +67,11 @@ export function GameShower(){
         if(keys.side1.length === 0) return 
         const keyEl1 = document.getElementById(`1-0`) as HTMLElement;
         const keyEl2 = document.getElementById(`2-0`) as HTMLElement;
+        const finalEl = document.getElementById('3-0') as HTMLElement;
         const heightNum = ((keys.side2[0].games.length * gameSize) + ((keys.side2[0].games.length - 1) * gameMargin));
-        keyEl1.style.height = `${heightNum}px`
-        keyEl2.style.height = `${heightNum}px`
+        keyEl1.style.height = `${heightNum}px`;
+        keyEl2.style.height = `${heightNum}px`;
+        finalEl.style.height = `${heightNum}px`;
         arrangeGamePositions(1, [...keys.side1]);
         arrangeGamePositions(2, [...keys.side2]);
     }, [keys])
@@ -99,7 +103,6 @@ export function GameShower(){
                          gameEl.style.top = parent1El.style.top;
                          return;
                     }
-                    console.log(parent1El.style.top);
                     const topNum = (parseInt(parent1El.style.top) + parseInt(parent2El.style.top))/2;
                     gameEl.style.top = `${topNum}px`
 
@@ -107,6 +110,13 @@ export function GameShower(){
                
             })
         })
+
+        //Arrange final game
+        const finalEl = document.getElementById('3-0-0') as HTMLElement;
+        const semifinal1 = document.getElementById(`1-${keys.side1.length-1}-0`) as HTMLElement;
+        const semifinal2 = document.getElementById(`2-${keys.side2.length-1}-0`) as HTMLElement;
+        console.log((parseInt(semifinal1.style.top) + parseInt(semifinal2.style.top))/2)
+        finalEl.style.top = `${(parseInt(semifinal1.style.top) + parseInt(semifinal2.style.top))/2}px`;
     }
 
     function verifyInitialWinners(dado: key){
@@ -302,57 +312,25 @@ export function GameShower(){
     
     return (
         <div className="container mx-[auto]">
-            <div className={`flex py-[60px] overflow-x-scroll md:overflow-hidden justify-left md:justify-center h-[100%] items-center`}>
-            <div className="flex mr-4 tablet:mr-6 ">
-                { keys.side1.map((k, i) => <Key id={`1-${i}`} key={i} games={k.games} />)}
+            <div className={`flex overflow-x-scroll md:overflow-hidden justify-left md:justify-center h-[100%] items-center`}>
+            <div className="flex">
+                { keys.side1.map((k, i) => <Key direction="right" id={`1-${i}`} key={i} games={k.games} />)}
             </div>
-            <div className="flex flex-col items-center relative"><p className="absolute top-[-30px]">Final</p><Game id="3-0-0" isFinal={true} participant1={final.participants[0]} participant2={final.participants[1]}/></div>
-            <div className="flex flex-row-reverse ml-6">
-                {keys.side2.map((k, i) => <Key id={`2-${i}`} key={i} games={k.games} />)}
+            <div id="3-0" className="flex flex-col justify-around items-center gap-10 my-20 2xl:w-40 md:w-36 w-28  relative"><p className="absolute top-[-30px]">Final</p><Game id="3-0-0" participant1={final.participants[0]} participant2={final.participants[1]}/></div>
+            <div className="flex flex-row-reverse">
+                {keys.side2.map((k, i) => <Key direction="left" id={`2-${i}`} key={i} games={k.games} />)}
             
             </div>
             </div>
             <div className=" mb-40">
                 {
                     final.winner ? 
-                    <>
-                        <button> Reiniciar</button>
-                        <button> Criar outro campeonato</button>
-                        </>
-                        : 
-                      
-                        <div>
-                         <p className="text-center text-2xl ">{
-                    finalValendo ? 
-                    'Quem venceu a final?'
-                    :
-                `Quem venceu o jogo ${numJogo}?`}</p>
-                <div className="flex justify-around items-center mt-10">
-                <a className="bg-green-700 text-white cursor-pointer py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(0)}>{
-                    
-                    
-                    (finalValendo) ?  
-                    final.participants[0].name
-                    :
-                    keys.side1.length === 0 ? <> Loading</> :
-                jogoAtual.side == 1 ? 
-                keys.side1[jogoAtual.key].games[jogoAtual.id].participants[0].name
-                    : keys.side2[jogoAtual.key].games[jogoAtual.id].participants[0].name
-            }</a>
-            OU
-            <a className="bg-green-700 cursor-pointer text-white py-4 px-6 rounded-md text-xl" onClick={() => handleSetWinner(1)}>
-                {
-                       (finalValendo) ?  
-                       final.participants[1].name
-                       :
-                    keys.side2.length === 0 ? <> Loading</> :
-            jogoAtual.side == 1 ? 
-                keys.side1[jogoAtual.key].games[jogoAtual.id].participants[1].name
-                    : keys.side2[jogoAtual.key].games[jogoAtual.id].participants[1].name
-                }
-            </a>
-            </div>
-                </div>
+                   <EndGame />
+                        : (
+                        keys.side1.length > 0  ?
+                    <GameUi final={final} finalValendo={finalValendo} handleSetWinner={handleSetWinner} jogoAtual={jogoAtual} keys={keys} numJogo={numJogo} />
+                       : null 
+                       )
                     }
             </div>
         </div>
