@@ -55,11 +55,14 @@ export function GameShower(){
             
             if(!pastChampionships) return navigate('/');
             const loadedPastChampionships = JSON.parse(pastChampionships) as ParticipantProps[]
+            
             generateKeys(loadedPastChampionships);
         }
         else{
-        localStorage.setItem('participants', JSON.stringify(participants));
-        generateKeys(participants);
+        
+        const sortedParts = sortGames(participants)
+        localStorage.setItem('participants', JSON.stringify(sortedParts));
+        generateKeys(sortedParts);
         }
 
     }, [])
@@ -76,7 +79,42 @@ export function GameShower(){
         arrangeGamePositions(2, [...keys.side2]);
     }, [keys])
 
+    function fixArrowSize(side: number, key: number, games: game[], isStandard: boolean){
+        let hasArrows = true;
+        games.forEach((game, gameId) => {
+        if(!hasArrows){
+            hasArrows = !hasArrows;
+            return;
+        }
+        const gameEl = document.getElementById(`${side}-${key}-${gameId}`) as HTMLElement;
+        if(!gameEl){
+            return;
+        }
+        const arrows = gameEl.querySelector(`#arrow-${gameEl.id}`) as HTMLElement | null;
+        if(!arrows) return;
+       
+        
+        const nextGame = gameEl.nextSibling as HTMLElement | null;
+        
+        if(!nextGame) {
+           arrows.style.height = `${gameSize}px`;
+            return;
+        }
+        if(isStandard){
+           
+            arrows.style.height = `${(gameSize*2)+gameMargin}px`;
+            return;
+        }
+       
+        const arrowNewHeight = parseInt(nextGame.style.top) - parseInt(gameEl.style.top) + gameSize;
+        arrows.style.height = `${arrowNewHeight}px`;
+        hasArrows = !hasArrows;
+    })
+
+    }
+
     function arrangeGamePositions(side: number, arrangeKeys: key[]){
+        
        
         arrangeKeys.forEach((key, keyId) => {
             
@@ -90,6 +128,8 @@ export function GameShower(){
                     }
                     const topNum = (gameId * (gameSize + gameMargin)) + possibleTop;
                     gameEl.style.top = `${topNum}px`; 
+                    
+                       
                 }
                 //se não for a primeira key
                 else{
@@ -97,26 +137,39 @@ export function GameShower(){
                     const parent1GameId = gameId * 2;
                     const parent2GameId = parent1GameId+1;
                     const gameEl = document.getElementById(`${side}-${keyId}-${gameId}`) as HTMLElement;
+                    
                     const parent1El = document.getElementById(`${side}-${parentsKey}-${parent1GameId}`) as HTMLElement;
                     const parent2El = document.getElementById(`${side}-${parentsKey}-${parent2GameId}`);
+                    
                     if(!parent2El){
                          gameEl.style.top = parent1El.style.top;
+                        
                          return;
                     }
                     const topNum = (parseInt(parent1El.style.top) + parseInt(parent2El.style.top))/2;
+                    
+                    
                     gameEl.style.top = `${topNum}px`
+                   
 
                 }
                
             })
+           
+                fixArrowSize(side, keyId, key.games, keyId === 0);
         })
-
+        
         //Arrange final game
         const finalEl = document.getElementById('3-0-0') as HTMLElement;
         const semifinal1 = document.getElementById(`1-${keys.side1.length-1}-0`) as HTMLElement;
         const semifinal2 = document.getElementById(`2-${keys.side2.length-1}-0`) as HTMLElement;
-        console.log((parseInt(semifinal1.style.top) + parseInt(semifinal2.style.top))/2)
+        
         finalEl.style.top = `${(parseInt(semifinal1.style.top) + parseInt(semifinal2.style.top))/2}px`;
+        const semiArrowLine1 = semifinal1.querySelector('#arrow-line') as HTMLElement;
+        const semiArrowLine2 = semifinal2.querySelector('#arrow-line') as HTMLElement;
+        if(!finalEl.style.top) return;
+        semiArrowLine1.style.top = `${(gameSize/2)-((parseInt(semifinal1.style.top) - parseInt(finalEl.style.top))/2)}px`;
+        semiArrowLine2.style.top = `${(gameSize/2)-((parseInt(semifinal2.style.top) - parseInt(finalEl.style.top))/2)}px`;
     }
 
     function verifyInitialWinners(dado: key){
@@ -168,19 +221,24 @@ export function GameShower(){
         return [...arrangedGames]
     }
 
-    function generateKeys(parts: ParticipantProps[]){
+    function sortGames(games: ParticipantProps[]):ParticipantProps[]{
         const sortedParts = [];
-        const sortObject = [...parts];
+        const sortObject = [...games];
         for(let i = 0; sortObject.length > 0; i++ ){
             const num = Math.round(Math.random() * (sortObject.length - 1));
             sortedParts[i] = sortObject[num]; 
             sortObject.splice(num, 1);
 
         }
-        const side1Games: game[] = arrangeIntoGames([...sortedParts])
+        return [...sortedParts]
+    }
+
+    function generateKeys(parts: ParticipantProps[]){
+        
+        
+        const side1Games = arrangeIntoGames([...parts])
         const side2Games = side1Games.splice(Math.floor(side1Games.length/2));
         
-
        
         const nextKeysSide1 = generateNextKeys([
             verifyInitialWinners({ games: side1Games })
@@ -188,8 +246,6 @@ export function GameShower(){
         const nextKeysSide2 = generateNextKeys([
             verifyInitialWinners({games: side2Games})
         ])
-        console.log("side1: ", nextKeysSide1);
-        console.log("side2: ", nextKeysSide2);
         setKeys({
             side1: nextKeysSide1,
             side2: nextKeysSide2
@@ -309,6 +365,15 @@ export function GameShower(){
         }
        
     }
+
+    function handleCreateAnotherChampionship(){
+        localStorage.clear();
+        return navigate('/')
+    }
+    function handleRestart(){
+        
+        return window.location.reload();
+    }
     
     return (
         <div className="container mx-[auto]">
@@ -316,7 +381,7 @@ export function GameShower(){
             <div className="flex">
                 { keys.side1.map((k, i) => <Key direction="right" id={`1-${i}`} key={i} games={k.games} />)}
             </div>
-            <div id="3-0" className="flex flex-col justify-around items-center gap-10 my-20 2xl:w-40 md:w-36 w-28  relative"><p className="absolute top-[-30px]">Final</p><Game hasArrows={false} hasBottom={false} id="3-0-0" participant1={final.participants[0]} participant2={final.participants[1]}/></div>
+            <div id="3-0" className="flex flex-col justify-around items-center gap-10 my-20 2xl:w-40 md:w-36 w-28  relative"><p className="mb-[50px]">Final</p><Game hasArrows={false} hasBottom={false} id="3-0-0" participant1={final.participants[0]} participant2={final.participants[1]}/></div>
             <div className="flex flex-row-reverse">
                 {keys.side2.map((k, i) => <Key direction="left" id={`2-${i}`} key={i} games={k.games} />)}
             
@@ -325,7 +390,7 @@ export function GameShower(){
             <div className=" mb-40">
                 {
                     final.winner ? 
-                   <EndGame />
+                   <EndGame createAnotherFunc={handleCreateAnotherChampionship} restartFunc={handleRestart} />
                         : (
                         keys.side1.length > 0  ?
                     <GameUi final={final} finalValendo={finalValendo} handleSetWinner={handleSetWinner} jogoAtual={jogoAtual} keys={keys} numJogo={numJogo} />

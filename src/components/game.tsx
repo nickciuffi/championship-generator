@@ -12,8 +12,8 @@ type GameProps = {
 
 export function Game(props: GameProps){
     return (
-        <div id={props.id} className="bg-slate-600 2xl:text-base text-sm text-white rounded-md min-w-[80px] w-[75%] max-w-[75%] text-center absolute">
-            <div className="relative w-full h-full md:p-4 p-2">
+        <div id={props.id} className="bg-slate-600 2xl:text-base text-sm text-white rounded-md min-w-[80px] w-[75%] max-w-[75%] text-center absolute h-[104px]">
+            <div className="relative w-full h-full md:p-4 p-2 flex items-center justify-center flex-col">
                <Arrows id={`arrow-${props.id}`} hasBottom={props.hasBottom} hasArrows={props.hasArrows} direction={props.direction} />
            <p className="overflow-hidden whitespace-nowrap">{props.participant1.name}</p>
              <p>X</p> 
