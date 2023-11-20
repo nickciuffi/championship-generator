@@ -81,7 +81,7 @@ export function GameShower(){
 
     function fixArrowSize(side: number, key: number, games: game[], isStandard: boolean){
         let hasArrows = true;
-        games.forEach((game, gameId) => {
+        games.forEach((_game, gameId) => {
         if(!hasArrows){
             hasArrows = !hasArrows;
             return;
