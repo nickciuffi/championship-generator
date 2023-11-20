@@ -49,10 +49,10 @@ export function GameShower(){
     })
 
     useEffect(() => {
-        
+        console.log('entered useEffect')
         if(participants.length < 2) {
             const pastChampionships = localStorage.getItem('participants');
-            
+            console.log('got the storage: ', pastChampionships)
             if(!pastChampionships) return navigate('/');
             const loadedPastChampionships = JSON.parse(pastChampionships) as ParticipantProps[]
             
