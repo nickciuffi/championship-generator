@@ -377,11 +377,13 @@ export function GameShower(){
     
     return (
         <div className="container mx-[auto]">
-            <div className={`flex overflow-x-scroll md:overflow-hidden justify-left md:justify-center h-[100%] items-center`}>
+            <div className={`flex overflow-x-scroll lg:overflow-hidden justify-left lg:justify-center h-[100%] items-center`}>
             <div className="flex">
                 { keys.side1.map((k, i) => <Key direction="right" id={`1-${i}`} key={i} games={k.games} />)}
             </div>
+            <div className="flex">
             <div id="3-0" className="flex flex-col justify-around items-center gap-10 my-20 2xl:w-40 md:w-36 w-28  relative"><p className="mb-[50px]">Final</p><Game hasArrows={false} hasBottom={false} id="3-0-0" participant1={final.participants[0]} participant2={final.participants[1]}/></div>
+            </div>
             <div className="flex flex-row-reverse">
                 {keys.side2.map((k, i) => <Key direction="left" id={`2-${i}`} key={i} games={k.games} />)}
             

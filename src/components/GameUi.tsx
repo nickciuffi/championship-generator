@@ -14,7 +14,7 @@ type GameUiProps = {
 
 export function GameUi(props: GameUiProps){
     return (
-        <div>
+        <div className="container px-0 md:px-[100px]">
                          <p className="text-center text-2xl ">{
                     props.finalValendo ? 
                     'Quem venceu a final?'
